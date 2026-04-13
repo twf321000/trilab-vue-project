@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg width="256" height="256" viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg">
+  <!-- 适度科技感风格定义 -->
+  <defs>
+    <!-- 深色科技背景渐变 -->
+    <radialGradient id="techBg" cx="0.5" cy="0.5" r="0.8">
+      <stop offset="0%" stop-color="#1a1a2e"/>
+      <stop offset="50%" stop-color="#16213e"/>
+      <stop offset="100%" stop-color="#0f3460"/>
+    </radialGradient>
+    
+    <!-- 简洁发光效果 -->
+    <radialGradient id="subtleGlow" cx="0.5" cy="0.5" r="0.6">
+      <stop offset="0%" stop-color="#4cc9f0" stop-opacity="0.3"/>
+      <stop offset="100%" stop-color="#4361ee" stop-opacity="0"/>
+    </radialGradient>
+    
+    <!-- 简洁阴影 -->
+    <filter id="cleanShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="2" dy="2" stdDeviation="2" flood-color="#000000" flood-opacity="0.3"/>
+    </filter>
+  </defs>
+  
+  <!-- 背景圆形 - 深色科技感 -->
+  <circle cx="128" cy="128" r="120" fill="url(#techBg)" stroke="#4cc9f0" stroke-width="2" opacity="0.9"/>
+  
+  <!-- 轻微发光背景 -->
+  <circle cx="128" cy="128" r="110" fill="url(#subtleGlow)" opacity="0.2"/>
+  
+  <!-- 主要方向线 - 清晰蓝色，更粗更明显 -->
+  <g stroke="#4cc9f0" stroke-width="4" stroke-linecap="round">
+    <line x1="128" y1="35" x2="128" y2="75"/>
+    <line x1="128" y1="181" x2="128" y2="221"/>
+    <line x1="35" y1="128" x2="75" y2="128"/>
+    <line x1="181" y1="128" x2="221" y2="128"/>
+  </g>
+  
+  <!-- 次要方向线 - 浅蓝色 -->
+  <g stroke="#90e0ef" stroke-width="2" stroke-linecap="round" opacity="0.7">
+    <line x1="105" y1="105" x2="115" y2="115"/>
+    <line x1="151" y1="105" x2="141" y2="115"/>
+    <line x1="105" y1="151" x2="115" y2="141"/>
+    <line x1="151" y1="151" x2="141" y2="141"/>
+  </g>
+  
+  <!-- 北方向箭头 - 更大更醒目 -->
+  <polygon points="128,40 118,70 138,70" fill="#f72585" stroke="#b5179e" stroke-width="2"/>
+  
+  <!-- 中心圆点 - 更大设计 -->
+  <circle cx="128" cy="128" r="10" fill="#7209b7" stroke="#560bad" stroke-width="2"/>
+  
+  <!-- 方向文字背景 - 调整位置与文字对齐 -->
+  <g fill="rgba(255,255,255,0.2)" stroke="#4cc9f0" stroke-width="1.5">
+    <circle cx="128" cy="28" r="25"/>
+    <circle cx="225" cy="128" r="25"/>
+    <circle cx="128" cy="228" r="25"/>
+    <circle cx="31" cy="128" r="25"/>
+  </g>
+  
+  <!-- 方向文字 - 更大更粗的白色字体 -->
+  <g font-family="Arial, sans-serif" font-weight="bold" fill="#ffffff" text-anchor="middle" dominant-baseline="middle">
+    <!-- 北 - 最大最突出 -->
+    <text x="128" y="28" font-size="32" font-weight="900">N</text>
+    <!-- 东 -->
+    <text x="225" y="128" font-size="28">E</text>
+    <!-- 南 -->
+    <text x="128" y="228" font-size="28">S</text>
+    <!-- 西 -->
+    <text x="31" y="128" font-size="28">W</text>
+  </g>
+  
+  <!-- 刻度环 - 更明显的刻度 -->
+  <g stroke="#4cc9f0" stroke-width="1.5" opacity="0.7">
+    <!-- 主刻度 -->
+    <line x1="128" y1="30" x2="128" y2="45"/>
+    <line x1="128" y1="206" x2="128" y2="221"/>
+    <line x1="30" y1="128" x2="45" y2="128"/>
+    <line x1="206" y1="128" x2="221" y2="128"/>
+    
+    <!-- 次刻度 -->
+    <line x1="158" y1="98" x2="158" y2="108"/>
+    <line x1="98" y1="98" x2="98" y2="108"/>
+    <line x1="98" y1="158" x2="98" y2="148"/>
+    <line x1="158" y1="158" x2="158" y2="148"/>
+  </g>
+  
+  <!-- 装饰圆环 - 更明显的分隔 -->
+  <circle cx="128" cy="128" r="85" fill="none" stroke="#4cc9f0" stroke-width="1.5" opacity="0.5"/>
+  <circle cx="128" cy="128" r="70" fill="none" stroke="#90e0ef" stroke-width="1" opacity="0.4"/>
+  
+  <!-- 次要方向标记 - 更大字体，调整位置 -->
+  <g font-family="Arial, sans-serif" font-size="14" fill="#caf0f8" text-anchor="middle" dominant-baseline="middle" opacity="0.8">
+    <text x="158" y="105">NE</text>
+    <text x="158" y="151">SE</text>
+    <text x="98" y="151">SW</text>
+    <text x="98" y="105">NW</text>
+  </g>
+  
+  <!-- 数据点效果 - 更大更明显 -->
+  <g fill="#4cc9f0" opacity="0.6">
+    <circle cx="105" cy="85" r="2.5"/>
+    <circle cx="151" cy="85" r="2.5"/>
+    <circle cx="105" cy="171" r="2.5"/>
+    <circle cx="151" cy="171" r="2.5"/>
+    <circle cx="85" cy="105" r="2.5"/>
+    <circle cx="171" cy="105" r="2.5"/>
+    <circle cx="85" cy="151" r="2.5"/>
+    <circle cx="171" cy="151" r="2.5"/>
+  </g>
+  
+  <!-- 品牌标记 - 调整位置 -->
+  <text x="128" y="155" font-family="Arial, sans-serif" font-size="10" fill="#90e0ef" text-anchor="middle" dominant-baseline="middle" opacity="0.7">
+    TRILAB
+  </text>
+  
+  <!-- 外圆环 - 增强边界感 -->
+  <circle cx="128" cy="128" r="115" fill="none" stroke="#4cc9f0" stroke-width="1" opacity="0.3"/>
+</svg>
