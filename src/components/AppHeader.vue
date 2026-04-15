@@ -122,6 +122,32 @@
     </div>
     
     <div class="header-right">
+      <!-- 开源下载按钮 -->
+      <div class="download-buttons">
+        <div class="download-dropdown">
+          <button class="download-btn" @click="toggleDownloadDropdown">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/>
+            </svg>
+            <span>开源下载</span>
+          </button>
+          <div v-if="showDownloadDropdown" class="download-dropdown-menu">
+            <a href="https://gitee.com/minimapv/trilab-vue-project.git" target="_blank" class="download-item gitee">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15h-2v-6h2v6zm-1-7.5c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1zm7.5 7.5h-6v-2h6v2zm0-4h-6v-2h6v2z"/>
+              </svg>
+              <span>Gitee (国内)</span>
+            </a>
+            <a href="https://github.com/AivoGenX/trilab-vue-project.git" target="_blank" class="download-item github">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 2C6.48 2 2 6.48 2 12c0 4.42 2.87 8.17 6.84 9.5.5.08.66-.23.66-.5v-1.69c-2.77.6-3.36-1.34-3.36-1.34-.46-1.16-1.11-1.47-1.11-1.47-.91-.62.07-.6.07-.6 1 .07 1.53 1.03 1.53 1.03.87 1.52 2.34 1.07 2.91.83.09-.65.35-1.09.63-1.34-2.22-.25-4.55-1.11-4.55-4.92 0-1.11.38-2 1.03-2.71-.1-.25-.45-1.29.1-2.64 0 0 .84-.27 2.75 1.02.79-.22 1.65-.33 2.5-.33.85 0 1.71.11 2.5.33 1.91-1.29 2.75-1.02 2.75-1.02.55 1.35.2 2.39.1 2.64.65.71 1.03 1.6 1.03 2.71 0 3.82-2.34 4.66-4.57 4.91.36.31.69.92.69 1.85V21c0 .27.16.59.67.5C19.14 20.16 22 16.42 22 12c0-5.52-4.48-10-10-10z"/>
+              </svg>
+              <span>GitHub (外网)</span>
+            </a>
+          </div>
+        </div>
+      </div>
+      
       <div class="user-info">
         <div class="user-avatar">
           <span class="avatar-text">{{ username.charAt(0).toUpperCase() }}</span>
@@ -160,6 +186,7 @@ import { ref, onMounted, onUnmounted } from 'vue'
 const activeMenu = ref('/')
 const username = ref('admin')
 const showDropdown = ref(false)
+const showDownloadDropdown = ref(false)
 
 // 菜单配置
 const menuItems = [
@@ -196,16 +223,24 @@ const handleUserAction = (action) => {
 // 切换下拉菜单
 const toggleDropdown = () => {
   showDropdown.value = !showDropdown.value
+  showDownloadDropdown.value = false
 }
 
-// 点击其他地方关闭下拉菜单
+// 切换下载下拉菜单
+const toggleDownloadDropdown = () => {
+  showDownloadDropdown.value = !showDownloadDropdown.value
+  showDropdown.value = false
+}
+
+// 点击外部关闭下拉菜单
 const handleClickOutside = (event) => {
-  const dropdown = document.querySelector('.user-dropdown')
-  if (dropdown && !dropdown.contains(event.target)) {
+  if (!event.target.closest('.user-info') && !event.target.closest('.download-dropdown')) {
     showDropdown.value = false
+    showDownloadDropdown.value = false
   }
 }
 
+// 生命周期钩子
 onMounted(() => {
   document.addEventListener('click', handleClickOutside)
 })
@@ -266,76 +301,55 @@ onUnmounted(() => {
 .logo-img {
   width: 32px;
   height: 32px;
-  object-fit: contain; 
-  transition: transform 0.3s ease;
-}
-
-.logo:hover .logo-img {
-  transform: scale(1.1);
+  object-fit: contain;
 }
 
 .logo-text {
-  font-size: 22px;
-  font-weight: 800;
-  color: #fff;
-  letter-spacing: 1px;
-  text-shadow: 
-    0 0 10px rgba(0, 212, 255, 0.5),
-    0 0 20px rgba(100, 255, 218, 0.3),
-    0 1px 3px rgba(0, 0, 0, 0.8);
-  background: linear-gradient(135deg, #fff 0%, #e0f7ff 100%);
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  background: linear-gradient(135deg, #64ffda, #00d4ff);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  transition: all 0.3s ease;
-  position: relative;
-}
-
-.logo:hover .logo-text {
-  text-shadow: 
-    0 0 15px rgba(0, 212, 255, 0.7),
-    0 0 30px rgba(100, 255, 218, 0.5),
-    0 2px 6px rgba(0, 0, 0, 0.9);
-  transform: scale(1.02);
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
 }
 
 .logo-divider {
   width: 1px;
   height: 24px;
-  background: rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.2);
+  margin: 0 16px;
 }
 
 .menu {
   display: flex;
-  gap: 0;
+  align-items: center;
+  gap: 8px;
   flex: 1;
   justify-content: center;
-  height: 100%;
 }
 
 .menu-item {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  justify-content: center;
-  gap: 6px;
-  padding: 0 32px;
-  height: 100%;
+  gap: 8px;
+  padding: 12px 20px;
+  border-radius: 8px;
   cursor: pointer;
   transition: all 0.3s ease;
   position: relative;
-  min-width: 120px;
-  backdrop-filter: blur(10px);
+  user-select: none;
 }
 
 .menu-item:hover {
-  background: rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.08);
   transform: translateY(-1px);
 }
 
 .menu-item.active {
-  background: rgba(255, 255, 255, 0.18);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  background: rgba(64, 158, 255, 0.15);
+  color: #409eff;
 }
 
 .menu-indicator {
@@ -344,8 +358,8 @@ onUnmounted(() => {
   left: 50%;
   transform: translateX(-50%);
   width: 0;
-  height: 3px;
-  background: linear-gradient(90deg, #409eff, #67c23a);
+  height: 2px;
+  background: linear-gradient(90deg, #64ffda, #00d4ff);
   border-radius: 2px;
   transition: width 0.3s ease;
 }
@@ -368,6 +382,103 @@ onUnmounted(() => {
 .header-right {
   display: flex;
   align-items: center;
+}
+
+/* 下载按钮样式 */
+.download-buttons {
+  margin-right: 20px;
+}
+
+.download-dropdown {
+  position: relative;
+}
+
+.download-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: linear-gradient(135deg, #67c23a, #409eff);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(64, 158, 255, 0.3);
+}
+
+.download-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px rgba(64, 158, 255, 0.4);
+  background: linear-gradient(135deg, #5daf34, #337ecc);
+}
+
+.download-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(64, 158, 255, 0.3);
+}
+
+.download-btn svg {
+  width: 16px;
+  height: 16px;
+}
+
+.download-dropdown-menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+  min-width: 200px;
+  z-index: 1001;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  margin-top: 8px;
+}
+
+.download-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  color: #333;
+  text-decoration: none;
+  font-size: 14px;
+  transition: background 0.2s ease;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.download-item:last-child {
+  border-bottom: none;
+}
+
+.download-item:hover {
+  background: #f8f9fa;
+}
+
+.download-item svg {
+  color: #666;
+  width: 16px;
+  height: 16px;
+}
+
+.download-item:hover svg {
+  color: #409eff;
+}
+
+.download-item.gitee:hover svg {
+  color: #c71d23; /* Gitee红色 */
+}
+
+.download-item.github:hover svg {
+  color: #333; /* GitHub黑色 */
+}
+
+.download-item span {
+  font-weight: 500;
 }
 
 .user-info {
@@ -467,5 +578,21 @@ onUnmounted(() => {
 
 .dropdown-item:hover svg {
   color: #409eff;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .download-buttons {
+    margin-right: 10px;
+  }
+  
+  .download-btn {
+    padding: 6px 12px;
+    font-size: 12px;
+  }
+  
+  .download-dropdown-menu {
+    min-width: 180px;
+  }
 }
 </style>
