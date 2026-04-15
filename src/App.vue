@@ -10,15 +10,44 @@
       
       <!-- 信息面板 -->
       <div id="info" class="info-panel">
-        <h3>Trilab 高德地图示例</h3>
-        <p>基于 trilab 引擎的高德地图集成</p>
-        <div class="status">
-          <span>引擎状态: </span>
-          <span :class="{ 'status-loading': !engineLoaded, 'status-ready': engineLoaded }">
-            {{ engineLoaded ? '已加载' : '加载中...' }}
-          </span>
+        <h3>Trilab 通用三维可视化系统</h3>
+        <p>基于插件化架构的三维大屏模板</p>
+        
+        <div class="status-section">
+          <h4>系统状态</h4>
+          <div class="status-item">
+            <span>引擎状态: </span>
+            <span :class="{ 'status-loading': !engineLoaded, 'status-ready': engineLoaded }">
+              {{ engineLoaded ? '已加载' : '加载中...' }}
+            </span>
+          </div>
+          <div class="status-item">
+            <span>插件系统: </span>
+            <span :class="{ 'status-loading': !pluginsLoaded, 'status-ready': pluginsLoaded }">
+              {{ pluginStatus }}
+            </span>
+          </div>
         </div>
-   
+        
+        <div class="plugins-section" v-if="pluginsLoaded && plugins.length > 0">
+          <h4>已加载插件</h4>
+          <div class="plugin-list">
+            <div 
+              v-for="plugin in plugins" 
+              :key="plugin.id"
+              class="plugin-item"
+              :class="{ 'plugin-active': plugin.isActive }">
+              <span class="plugin-icon">{{ plugin.config?.icon || '🔌' }}</span>
+              <span class="plugin-name">{{ plugin.name }}</span>
+              <span class="plugin-status">{{ plugin.isActive ? '运行中' : '已停用' }}</span>
+            </div>
+          </div>
+        </div>
+        
+        <div class="actions-section">
+          <button @click="toggleInfo" class="action-btn">隐藏信息</button>
+          <button @click="showPluginManager" class="action-btn">插件管理</button>
+        </div>
       </div>
       
       <!-- 底图切换器 -->
@@ -51,6 +80,8 @@
       
       <!-- 工具管理按钮 -->
       <ToolsManagerButton ref="toolsManagerButtonRef" />
+      
+      <!-- 插件UI组件将在这里动态渲染 -->
     </div>
   </div>
 </template>
@@ -58,8 +89,8 @@
 <script setup>
 import { onMounted, ref } from 'vue'
 import triLab from './TriLab.js'
-import AppHeader from './components/AppHeader.vue'
-import MapSwitcher from './components/MapSwitcher.vue'
+import { pluginManager } from './plugins/PluginManager.js'
+import AppHeader from './components/AppHeader.vue' 
 import LayerManagerButton from './components/LayerManagerButton.vue'
 import LayerManagerPanel from './components/LayerManagerPanel.vue'
 import MapControls from './components/MapControls.vue'
@@ -71,13 +102,14 @@ import BasemapSwitcherPanel from './components/BasemapSwitcherPanel.vue'
 // 响应式数据
 const engineLoaded = ref(false)
 const showInfo = ref(true)
-const mapSwitcherRef = ref(null)
-const layerManagerButtonRef = ref(null)
-const layerManagerPanelRef = ref(null)
-const toolsManagerButtonRef = ref(null)
-const toolsManagerPanelRef = ref(null)
+const pluginsLoaded = ref(false)
+const mapSwitcherRef = ref(null) 
 const basemapSwitcherButtonRef = ref(null)
 const basemapSwitcherPanelRef = ref(null)
+
+// 插件管理
+const plugins = ref([])
+const pluginStatus = ref('初始化中...')
 
 // 初始化 trilab 引擎
 const initTrilab = async () => {
@@ -202,9 +234,54 @@ const handleBasemapClose = () => {
   }
 }
 
+// 显示插件管理器
+const showPluginManager = () => {
+  alert('插件管理器功能开发中...\n\n当前已加载插件：' + 
+    plugins.value.map(p => `${p.name} (${p.isActive ? '运行中' : '已停用'})`).join(', '))
+}
+
+// 初始化插件系统
+const initPlugins = async () => {
+  try {
+    pluginStatus.value = '正在加载插件...'
+    
+    // 初始化插件管理器
+    await pluginManager.initialize()
+    
+    // 获取插件列表
+    plugins.value = pluginManager.getPlugins()
+    pluginsLoaded.value = true
+    pluginStatus.value = `已加载 ${plugins.value.length} 个插件`
+    
+    console.log('✅ 插件系统初始化完成:', plugins.value)
+    
+  } catch (error) {
+    console.error('❌ 插件系统初始化失败:', error)
+    pluginStatus.value = '插件加载失败'
+  }
+}
+
+// 地图就绪时通知插件
+const notifyPluginsMapReady = (map) => {
+  plugins.value.forEach(plugin => {
+    if (plugin.onMapReady && typeof plugin.onMapReady === 'function') {
+      plugin.onMapReady(map)
+    }
+  })
+}
+
 // 组件挂载时初始化
-onMounted(() => {
-  initTrilab()
+onMounted(async () => {
+  // 并行初始化 trilab 引擎和插件系统
+  await Promise.all([
+    initTrilab(),
+    initPlugins()
+  ])
+  
+  // 地图就绪后通知插件
+  if (window.trilabMap) {
+    notifyPluginsMapReady(window.trilabMap)
+  }
 })
 </script>
 
@@ -245,37 +322,118 @@ html, body {
   position: absolute;
   top: 10px;
   left: 10px;
-  background: rgba(0, 0, 0, 0.7);
+  background: rgba(0, 0, 0, 0.9);
   color: white;
-  padding: 15px;
+  padding: 20px;
   border-radius: 8px;
-  z-index: 100;
-  max-width: 300px;
+  max-width: 350px;
+  z-index: 1000;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(100, 255, 218, 0.3);
 }
 
 .info-panel h3 {
   margin-bottom: 10px;
-  color: #409eff;
+  color: #64ffda;
+  font-size: 16px;
+}
+
+info-panel h4 {
+  margin: 15px 0 10px 0;
+  color: #00d4ff;
+  font-size: 14px;
+  border-bottom: 1px solid rgba(100, 255, 218, 0.3);
+  padding-bottom: 5px;
 }
 
 .info-panel p {
   margin-bottom: 15px;
   opacity: 0.8;
+  font-size: 12px;
 }
 
-.status {
+.status-section {
   margin-bottom: 15px;
-  padding: 5px 10px;
-  border-radius: 4px;
-  background: rgba(255, 255, 255, 0.1);
+}
+
+.status-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  font-size: 12px;
 }
 
 .status-loading {
-  color: #e6a23c;
+  color: #ffa500;
 }
 
 .status-ready {
-  color: #67c23a;
+  color: #00ff00;
+}
+
+.plugins-section {
+  margin-bottom: 15px;
+}
+
+.plugin-list {
+  max-height: 120px;
+  overflow-y: auto;
+}
+
+.plugin-item {
+  display: flex;
+  align-items: center;
+  padding: 6px 8px;
+  margin-bottom: 4px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.05);
+  font-size: 11px;
+  transition: background 0.2s;
+}
+
+.plugin-item.plugin-active {
+  background: rgba(100, 255, 218, 0.1);
+  border-left: 2px solid #64ffda;
+}
+
+.plugin-icon {
+  margin-right: 8px;
+  font-size: 12px;
+}
+
+.plugin-name {
+  flex: 1;
+  font-weight: 500;
+}
+
+.plugin-status {
+  font-size: 10px;
+  opacity: 0.7;
+}
+
+.actions-section {
+  display: flex;
+  gap: 8px;
+  margin-top: 15px;
+}
+
+.action-btn {
+  flex: 1;
+  padding: 6px 12px;
+  background: linear-gradient(135deg, #409eff, #67c23a);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 11px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.action-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(64, 158, 255, 0.3);
 }
 
 .controls {
