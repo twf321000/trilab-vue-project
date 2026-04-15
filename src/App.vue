@@ -8,6 +8,22 @@
       <!-- 地图容器 -->
       <div id="map-container" class="map-container"></div>
       
+      <!-- 插件组件容器 -->
+      <div class="plugin-components-container">
+        <!-- 动态渲染插件组件 -->
+        <div 
+          v-for="pluginComponent in pluginComponents" 
+          :key="pluginComponent.id"
+          :class="pluginComponent.containerClass"
+          :style="pluginComponent.containerStyle"
+        >
+          <component 
+            :is="pluginComponent.component" 
+            v-if="pluginComponent.component"
+          />
+        </div>
+      </div>
+      
       <!-- 信息面板 -->
       <div id="info" class="info-panel">
         <h3>Trilab 通用三维可视化系统</h3>
@@ -87,7 +103,7 @@
 </template>
 
 <script setup>
-import { onMounted, ref } from 'vue'
+import { onMounted, ref, reactive, shallowRef } from 'vue'
 import triLab from './TriLab.js'
 import { pluginManager } from './plugins/PluginManager.js'
 import AppHeader from './components/AppHeader.vue' 
@@ -98,6 +114,9 @@ import ToolsManagerButton from './components/ToolsManagerButton.vue'
 import ToolsManagerPanel from './components/ToolsManagerPanel.vue'
 import BasemapSwitcherButton from './components/BasemapSwitcherButton.vue'
 import BasemapSwitcherPanel from './components/BasemapSwitcherPanel.vue'
+
+// 插件组件管理
+const pluginComponents = ref([])
 
 // 响应式数据
 const engineLoaded = ref(false)
@@ -255,9 +274,72 @@ const initPlugins = async () => {
     
     console.log('✅ 插件系统初始化完成:', plugins.value)
     
+    // 加载插件组件
+    await loadPluginComponents()
+    
   } catch (error) {
     console.error('❌ 插件系统初始化失败:', error)
     pluginStatus.value = '插件加载失败'
+  }
+}
+
+// 加载插件组件
+const loadPluginComponents = async () => {
+  try {
+    console.log('🔍 开始加载插件组件...')
+    
+    // 动态导入仪表盘插件组件
+    const { default: DashboardButton } = await import('./plugins/dashboard/DashboardButton.vue')
+    const { default: DashboardPanel } = await import('./plugins/dashboard/DashboardPanel.vue')
+    
+    console.log('✅ 仪表盘组件导入成功')
+    
+    // 注册插件组件
+    registerPluginComponent('dashboard-button', DashboardButton, {
+      containerClass: 'plugin-dashboard-button',
+      containerStyle: { 
+        left: '20px',
+        bottom: '20px',
+        zIndex: 10000
+      }
+    })
+    
+    registerPluginComponent('dashboard-panel', DashboardPanel, {
+      containerClass: 'plugin-dashboard-panel',
+      containerStyle: { 
+        left: '20px',
+        bottom: '80px',
+        zIndex: 10000
+      }
+    })
+    
+    console.log('✅ 插件组件加载完成')
+    
+  } catch (error) {
+    console.error('❌ 加载插件组件失败:', error)
+  }
+}
+
+// 注册插件组件
+const registerPluginComponent = (id, component, config = {}) => {
+  const pluginComponent = {
+    id,
+    component: shallowRef(component),
+    containerClass: config.containerClass || '',
+    containerStyle: config.containerStyle || {},
+    config
+  }
+  
+  pluginComponents.value.push(pluginComponent)
+  console.log(`✅ 注册插件组件: ${id}`, config)
+}
+
+// 注销插件组件
+const unregisterPluginComponent = (id) => {
+  const index = pluginComponents.value.findIndex(pc => pc.id === id)
+  if (index !== -1) {
+    pluginComponents.value.splice(index, 1)
+    console.log(`✅ 注销插件组件: ${id}`)
   }
 }
 
@@ -316,6 +398,22 @@ html, body {
   width: 100%;
   height: 100%;
   background: #000;
+}
+
+/* 插件组件容器样式 - 修复布局问题 */
+.plugin-components-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1000; /* 与 info-panel 相同的层级 */
+  /* 移除 pointer-events: none，允许子组件接收点击事件 */
+}
+
+/* 插件组件样式 - 确保组件可以接收点击事件 */
+.plugin-components-container > div {
+  pointer-events: auto;
 }
 
 .info-panel {
