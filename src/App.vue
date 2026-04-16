@@ -400,7 +400,7 @@ html, body {
   background: #000;
 }
 
-/* 插件组件容器样式 - 修复布局问题 */
+/* 插件组件容器样式 - 修复遮挡底图问题 */
 .plugin-components-container {
   position: absolute;
   top: 0;
@@ -408,12 +408,13 @@ html, body {
   width: 100%;
   height: 100%;
   z-index: 1000; /* 与 info-panel 相同的层级 */
-  /* 移除 pointer-events: none，允许子组件接收点击事件 */
+  pointer-events: none; /* 允许点击穿透到底图 */
 }
 
-/* 插件组件样式 - 确保组件可以接收点击事件 */
+/* 插件组件样式 - 确保组件可以接收点击事件，但不遮挡底图 */
 .plugin-components-container > div {
   pointer-events: auto;
+  /* 确保组件只占用必要的空间，不遮挡整个地图 */
 }
 
 .info-panel {
